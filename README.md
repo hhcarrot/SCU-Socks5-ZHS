@@ -4,4 +4,4 @@
 SCU-Socks5-ZHS
 
 Founder：
-NickSun hhcarrot zoralili
+道雪仙尘一剑灯 hhcarrot zoralili
