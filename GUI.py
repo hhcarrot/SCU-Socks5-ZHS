@@ -21,14 +21,14 @@ def freshList(v):
 	global whichList
 	if (v == "Public Servers"):
 		whichList = ('Public Servers', pubList)
-		enUsername['state'] = ACTIVE
-		enPassword['state'] = ACTIVE
-		butEncode['state'] = ACTIVE
-	else:
-		whichList = ('Private Servers', priList)
 		enUsername['state'] = DISABLED
 		enPassword['state'] = DISABLED
 		butEncode['state'] = DISABLED
+	else:
+		whichList = ('Private Servers', priList)
+		enUsername['state'] = NORMAL
+		enPassword['state'] = NORMAL
+		butEncode['state'] = NORMAL
 	print(v+'loaded..')
 	init()
 	
@@ -75,6 +75,9 @@ enPassword['show'] = '*'
 varEncode = StringVar()
 varEncode.set(0)
 butEncode = Checkbutton(fm[0], text = 'Encode',bg = 'gray', variable = varEncode)
+enUsername['state'] = DISABLED
+enPassword['state'] = DISABLED
+butEncode['state'] = DISABLED
 
 labPort =Label(fm[1], text="Port:")
 varPort = StringVar() 
