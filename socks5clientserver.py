@@ -3,12 +3,20 @@ from select import select
 import threading
 
 buffersize = 5900
-authentication = False
+authentication = True
 VER = 0x05
 
 def startclient(clientsocket, clientaddress):
     transpondsocket = socket(AF_INET, SOCK_STREAM)
-    transpondsocket.connect(("47.89.194.114", 8902))
+    transpondsocket.connect(("47.89.194.114", 8900))
+
+    if authentication:
+        receivebuffer = clientsocket.recv(buffersize)
+        transpondsocket.send((chr(VER) + chr(0x01) + chr(0x02)).encode()[::-1])
+        receivebuffer = (transpondsocket.recv(buffersize))
+        transpondsocket.send((chr(0x01) + chr(len(username)) + username + chr(len(password)) + password).encode()[::-1])
+        receivebuffer = (transpondsocket.recv(buffersize))
+        clientsocket.send(receivebuffer)
 
     socks = []
     socks.append(clientsocket)
@@ -41,6 +49,11 @@ def startclient(clientsocket, clientaddress):
 print("Starting...")
 address = input("Please input client address:")
 port = int(input("Please input client port:"))
+
+if authentication:
+    username = input("Please input username:")
+    password = input("Please input password:")
+
 listensocket = socket(AF_INET, SOCK_STREAM)
 listensocket.bind((address, port))
 listensocket.listen(9)

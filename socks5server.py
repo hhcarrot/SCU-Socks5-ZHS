@@ -1,8 +1,10 @@
 # This is a socks5 server
 
 buffersize = 5900
-authentication = False
+authentication = True
 VER = 0x05
+username = "root"
+password = "123456"
 
 from socket import *
 from select import select
@@ -31,13 +33,31 @@ def startsocks5(connectsocket, clientaddress):
         return
     print("VER: ", ord(receivebuffer[0:1]))
     if ord(receivebuffer[0:1]) == VER:
-        #print("socks5")
         NMETHODS = ord(receivebuffer[1:2])
         METHODS = []
-#        for i in receivebuffer[2:]:
-#            METHODS.append(ord(i))
+        for i in receivebuffer[2:]:
+            METHODS.append(i)
         if authentication:
-            pass
+            if 0x02 in METHODS:
+                METHOD = 0x02
+                connectsocket.send((chr(VER) + chr(METHOD)).encode())
+
+                receivebuffer = (connectsocket.recv(buffersize))[::-1]
+                if ord(receivebuffer[0:1]) == 0x01:
+                    userlen = ord(receivebuffer[1:2])
+                    user = (receivebuffer[2:2 + userlen]).decode()
+                    passlen = ord(receivebuffer[2 + userlen:2 + userlen + 1])
+                    passw = (receivebuffer[3 + userlen:3 + userlen + passlen]).decode()
+                    if user == username and passw == password:
+                        METHOD = 0x00
+                        connectsocket.send((chr(VER) + chr(METHOD)).encode())
+                    else:
+                        connectsocket.close()
+                        return
+                else:
+                    connectsocket.close()
+                    return
+
         else:
             METHOD = 0x00
             connectsocket.send((chr(VER) + chr(METHOD)).encode())
