@@ -1,10 +1,19 @@
 #-*- coding: UTF-8 -*-
 from tkinter import *
 import tkinter
-
-
+		
+#需要传入的公共服务器与私有服务器列表
 pubList = []
 priList = []
+#得到的结果，其中前两者为选择了公有or私有 及 该列表中的下标（从0起）
+resServerList = None
+resServerIndex = None
+resUsername = None
+resPassword = None
+resEncode = None
+resPort = None
+resNote = None
+
 #for test
 for i in range(20):
 	pubList.append('(pubic)'+str(i*100)+'______________________________________!!!')
@@ -12,9 +21,6 @@ for i in range(20):
 
 whichList = ('Public servers', pubList)
 
-
-def hello():
-	print('hello menu')
 	
 	
 def freshList(v):
@@ -33,6 +39,13 @@ def freshList(v):
 	init()
 	
 def submit():
+	global resServerList
+	global resServerIndex 
+	global resUsername 
+	global resPassword 
+	global resEncode
+	global resPort 
+	global resNote 
 	print('select:')
 	print(whichList[0])
 	print(lb.curselection())
@@ -46,6 +59,13 @@ def submit():
 	print(spinPort.get())
 	print('note: ')
 	print(varNote.get())
+	resServerList = whichList[0]
+	resServerIndex = lb.curselection()
+	resUsername = varUsername.get()
+	resPassword = varPassword.get()
+	resEncode = varEncode.get()
+	resPort = spinPort.get()
+	resNote = varNote.get()
 	
 	
 #   print(v2.get())
