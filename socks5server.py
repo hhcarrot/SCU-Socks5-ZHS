@@ -76,6 +76,7 @@ def startsocks5(connectsocket, clientaddress):
         if ATYP == 0x03:
             DSTADDRLEN = ord(receivebuffer[4:5])
             DSTADDR = gethostbyname(receivebuffer[5:5 + DSTADDRLEN])
+            print(receivebuffer[5:5 + DSTADDRLEN])
             DSTPORT = ord(receivebuffer[5 + DSTADDRLEN:5 + DSTADDRLEN + 1]) * 256 + ord(receivebuffer[5 + DSTADDRLEN + 1:5 + DSTADDRLEN + 2])
 
 

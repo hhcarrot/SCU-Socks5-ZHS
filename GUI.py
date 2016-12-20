@@ -1,9 +1,43 @@
 #-*- coding: UTF-8 -*-
+import inspect
+import ctypes
+
+childthread = 0
+
+def _async_raise(tid, exctype):
+	tid = ctypes.c_long(tid)
+	if not inspect.isclass(exctype):
+		exctype = type(exctype)
+	res = ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, ctypes.py_object(exctype))
+	if res == 0:
+		raise ValueError("invalide thread id")
+	elif res != 1:
+		ctypes.pythonapi.PyThreadState_SetAsyncExc(tid, None)
+		raise SystemError("PyThreadState_SetAsyncExc failed")
+	else:
+		global childthread
+		childthread = 0
+		print('close')
+
+
+def stop_thread(thread):
+	_async_raise(thread.ident, SystemExit)
+
+
 from tkinter import *
 import tkinter
-		
+
+import socks5clientserver
+import threading
+from socket import *
+#from socks5clientserver import initclient
+
+listensocket = socket(AF_INET, SOCK_STREAM)
+
+
 #需要传入的公共服务器与私有服务器列表
 pubList = []
+pubport = []
 priList = []
 #得到的结果，其中前两者为选择了公有or私有 及 该列表中的下标（从0起）
 resServerList = None
@@ -14,15 +48,24 @@ resEncode = None
 resPort = None
 resNote = None
 
+priList.append('47.89.194.114')
 #for test
+file = open('socks.txt')
 for i in range(20):
-	pubList.append('(pubic)'+str(i*100)+'______________________________________!!!')
-	priList.append('(private)'+str(i*100)+'______________________________________!!!')
+	line = file.readline()
+	if not line:
+		break
+	x = line.split(',')
+	address = x[0].replace("('", '').replace("'", '')
+	port = x[1].replace("'", '').replace(" ", '')
+	pubList.append(address)
+	pubport.append(port)
+	#priList.append('(private)'+str(i*100)+'______________________________________!!!')
 
 whichList = ('Public servers', pubList)
 
-	
-	
+
+
 def freshList(v):
 	global whichList
 	if (v == "Public Servers"):
@@ -38,15 +81,15 @@ def freshList(v):
 	print(v+'loaded..')
 	init()
 
-	
+
 def submit():
 	global resServerList
-	global resServerIndex 
-	global resUsername 
-	global resPassword 
+	global resServerIndex
+	global resUsername
+	global resPassword
 	global resEncode
-	global resPort 
-	global resNote 
+	global resPort
+	global resNote
 	resServerList = whichList[0]
 	if(lb.curselection() == ()):
 		resAddress = None
@@ -70,8 +113,30 @@ def submit():
 	print(resPort)
 	print('note: ')
 	print(resNote)
-	
-	
+
+	if resServerList == "Public servers":
+		print('Public')
+		resPort = pubport[lb.curselection()[0]]
+		socks5clientserver.authentication = False
+	else:
+		print(resServerList, resServerList)
+		socks5clientserver.authentication = True
+
+	#socks5clientserver.listensocket.close()
+	#global listensocket
+	#listensocket.shutdown(2)
+
+	#listensocket.setblocking(False)
+	#listensocket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+	global childthread
+	if (childthread != 0):
+		print("Stop")
+		stop_thread(childthread)
+	else:
+		childthread = threading.Thread(target = socks5clientserver.startengine, args = (resUsername, resPassword, resAddress, resPort))
+		childthread.start()
+
+
 #   print(v2.get())
 
 root = Tk()
@@ -88,7 +153,7 @@ fm.append(Frame(height = 10, width = 50, bg = 'gray'))
 fm.append(Frame(height = 10, width = 50))
 
 labUsername =Label(fm[0], text="Username:", bg = 'gray')
-varUsername = StringVar()	
+varUsername = StringVar()
 enUsername = Entry(fm[0], textvariable=varUsername)
 
 labPassword = Label(fm[0], text="Password:",bg = 'gray')
@@ -104,18 +169,18 @@ enPassword['state'] = DISABLED
 butEncode['state'] = DISABLED
 
 labPort =Label(fm[1], text="Port:")
-varPort = StringVar() 
+varPort = StringVar()
 spinPort = Spinbox(fm[1], from_ = 0, to = 65535, increment = 1)
 labNote =Label(fm[1], text="Note:")
 
-varNote = StringVar()	
+varNote = StringVar()
 enNote = Entry(fm[1], textvariable=varNote)
 butSubmit = Button(fm[1], text="Submit", command=submit, default='active')
 butQuit = Button(fm[1], text="Quit", command=quit)
 
 
 
-	
+
 def init():
 	global varChooseList
 	global lb
@@ -123,7 +188,7 @@ def init():
 	print(whichList[0])
 	om.grid(row = 2)
 #列表
-	
+
 	lb.delete(0, lb.size())
 	print(whichList[1])
 	for item in whichList[1]:
@@ -150,13 +215,13 @@ def init():
 
 	labUsername.grid(row=2, column=0, padx=5, pady=5, sticky=W)
 	#绑定对象到Entry
-	
+
 	enUsername.grid(row=2, column=1, sticky='ew', columnspan=2)
-	
+
 	labPassword.grid(row=3, column=0, padx=5, pady=5, sticky=W)
 	enPassword.grid(row=3, column=1, sticky='ew', columnspan=2)
 
-	
+
 	butEncode.grid(row=4)
 
 	fm[0].grid(row = 2, column = 10, rowspan = 6)
@@ -179,5 +244,5 @@ def init():
 #lb2.grid(row = 0, column = 1)
 	root.columnconfigure(0, minsize = 100)
 	root.mainloop()
-	
+
 init()
