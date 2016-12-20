@@ -7,7 +7,7 @@ pubList = []
 priList = []
 #得到的结果，其中前两者为选择了公有or私有 及 该列表中的下标（从0起）
 resServerList = None
-resServerIndex = None
+resAddress = None
 resUsername = None
 resPassword = None
 resEncode = None
@@ -37,6 +37,7 @@ def freshList(v):
 		butEncode['state'] = NORMAL
 	print(v+'loaded..')
 	init()
+
 	
 def submit():
 	global resServerList
@@ -46,26 +47,29 @@ def submit():
 	global resEncode
 	global resPort 
 	global resNote 
-	print('select:')
-	print(whichList[0])
-	print(lb.curselection())
-	print('username: ')
-	print(varUsername.get())
-	print('password: ')
-	print(varPassword.get())
-	print('encode: ')
-	print(varEncode.get())
-	print('port: ')
-	print(spinPort.get())
-	print('note: ')
-	print(varNote.get())
 	resServerList = whichList[0]
-	resServerIndex = lb.curselection()
+	if(lb.curselection() == ()):
+		resAddress = None
+	else:
+		resAddress = whichList[1][lb.curselection()[0]]
 	resUsername = varUsername.get()
 	resPassword = varPassword.get()
 	resEncode = varEncode.get()
 	resPort = spinPort.get()
 	resNote = varNote.get()
+	print('select:')
+	print(resServerList)
+	print(resAddress)
+	print('username: ')
+	print(resUsername)
+	print('password: ')
+	print(resPassword)
+	print('encode: ')
+	print(resEncode)
+	print('port: ')
+	print(resPort)
+	print('note: ')
+	print(resNote)
 	
 	
 #   print(v2.get())
